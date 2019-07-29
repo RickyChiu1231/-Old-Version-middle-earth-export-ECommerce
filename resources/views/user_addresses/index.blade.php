@@ -28,8 +28,9 @@
                 <td>{{ $address->zip }}</td>
                 <td>{{ $address->contact_phone }}</td>
                 <td>
-                  <button class="btn btn-primary">Edit</button>
-                  <button class="btn btn-danger">Delete</button>
+                  <a href="{{ route('user_addresses.edit', ['user_address' => $address->id]) }}" class="btn btn-primary">Edit</a>
+
+                <button class="btn btn-danger btn-del-address" type="button" data-id="{{ $address->id }}">Delete</button>
                 </td>
               </tr>
             @endforeach
@@ -39,4 +40,32 @@
       </div>
     </div>
   </div>
+  @section('scriptsAfterJs')
+<script>
+$(document).ready(function() {
+  // Deletebtn click event
+  $('.btn-del-address').click(function() {
+
+    var id = $(this).data('id');
+    // use sweetalert
+    swal({
+        title: "Are you sure to delete this address？",
+        icon: "warning",
+        buttons: ['Cancel', 'Yes'],
+        dangerMode: true,
+      })
+    .then(function(willDelete) {
+
+      if (!willDelete) {
+        return;
+      }
+      axios.delete('/user_addresses/' + id)
+        .then(function () {
+          location.reload();
+        })
+    });
+  });
+});
+</script>
+@endsection
 @endsection

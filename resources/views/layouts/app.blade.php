@@ -20,5 +20,6 @@
     </div>
     <!-- JS script -->
     <script src="{{ mix('js/app.js') }}"></script>
+    @yield('scriptsAfterJs')
 </body>
 </html>

@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', '新增收货地址')
+@section('title', ($address->id ? 'Edit': 'Add') . 'Shipping Address')
 
 @section('content')
 <div class="row">
@@ -7,14 +7,14 @@
 <div class="card">
   <div class="card-header">
     <h2 class="text-center">
-      新增收货地址
+  {{ $address->id ? 'Edit': 'Add' }} Shipping Address
     </h2>
   </div>
   <div class="card-body">
-    <!-- 输出后端报错开始 -->
+
     @if (count($errors) > 0)
       <div class="alert alert-danger">
-        <h4>有错误发生：</h4>
+        <h4>Error：</h4>
         <ul>
           @foreach ($errors->all() as $error)
             <li><i class="glyphicon glyphicon-remove"></i> {{ $error }}</li>
@@ -22,31 +22,35 @@
         </ul>
       </div>
     @endif
-    <!-- 输出后端报错结束 -->
-    <!-- inline-template 代表通过内联方式引入组件 -->
+
     <user-addresses-create-and-edit inline-template>
+        @if($address->id)
+    <form class="form-horizontal" role="form" action="{{ route('user_addresses.update', ['user_address' => $address->id]) }}" method="post">
+      {{ method_field('PUT') }}
+  @else
       <form class="form-horizontal" role="form" action="{{ route('user_addresses.store') }}" method="post">
+        @endif
         <!-- 引入 csrf token 字段 -->
       {{ csrf_field() }}
       <!-- 注意这里多了 @change -->
-        <select-district @change="onDistrictChanged" inline-template>
+        <select-district :init-value="{{ json_encode([old('province', $address->province), old('city', $address->city), old('district', $address->district)]) }}" @change="onDistrictChanged" inline-template>
           <div class="form-group row">
-            <label class="col-form-label col-sm-2 text-md-right">省市区</label>
+            <label class="col-form-label col-sm-2 text-md-right">Select Province-City-District</label>
             <div class="col-sm-3">
               <select class="form-control" v-model="provinceId">
-                <option value="">选择省</option>
+                <option value="">Select province</option>
                 <option v-for="(name, id) in provinces" :value="id">@{{ name }}</option>
               </select>
             </div>
             <div class="col-sm-3">
               <select class="form-control" v-model="cityId">
-                <option value="">选择市</option>
+                <option value="">Select city</option>
                 <option v-for="(name, id) in cities" :value="id">@{{ name }}</option>
               </select>
             </div>
             <div class="col-sm-3">
               <select class="form-control" v-model="districtId">
-                <option value="">选择区</option>
+                <option value="">select district</option>
                 <option v-for="(name, id) in districts" :value="id">@{{ name }}</option>
               </select>
             </div>
@@ -59,32 +63,32 @@
         <input type="hidden" name="city" v-model="city">
         <input type="hidden" name="district" v-model="district">
         <div class="form-group row">
-          <label class="col-form-label text-md-right col-sm-2">详细地址</label>
+          <label class="col-form-label text-md-right col-sm-2">Detail Address</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" name="address" value="{{ old('address', $address->address) }}">
           </div>
         </div>
         <div class="form-group row">
-          <label class="col-form-label text-md-right col-sm-2">邮编</label>
+          <label class="col-form-label text-md-right col-sm-2">Postcode</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" name="zip" value="{{ old('zip', $address->zip) }}">
           </div>
         </div>
         <div class="form-group row">
-          <label class="col-form-label text-md-right col-sm-2">姓名</label>
+          <label class="col-form-label text-md-right col-sm-2">Name</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" name="contact_name" value="{{ old('contact_name', $address->contact_name) }}">
           </div>
         </div>
         <div class="form-group row">
-          <label class="col-form-label text-md-right col-sm-2">电话</label>
+          <label class="col-form-label text-md-right col-sm-2">Phone</label>
           <div class="col-sm-9">
             <input type="text" class="form-control" name="contact_phone" value="{{ old('contact_phone', $address->contact_phone) }}">
           </div>
         </div>
         <div class="form-group row text-center">
           <div class="col-12">
-            <button type="submit" class="btn btn-primary">提交</button>
+            <button type="submit" class="btn btn-primary">Save</button>
           </div>
         </div>
       </form>
