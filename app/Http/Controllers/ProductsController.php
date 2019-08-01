@@ -41,11 +41,22 @@ class ProductsController extends Controller
 
         $products = $builder->paginate(16);
 
-        return view('products.index', ['products' => $products,
+        return view('products.index', [
+            'products' => $products,
             'filters'  => [
                 'search' => $search,
                 'order'  => $order,
             ],
         ]);
+    }
+
+    public function show(Product $product, Request $request)
+    {
+        // Determine if the item has been put on the shelf, and throw an exception if it is not on the shelf.
+        if (!$product->on_sale) {
+            throw new \Exception('Product is not on sale yet');
+        }
+
+        return view('products.show', ['product' => $product]);
     }
 }
