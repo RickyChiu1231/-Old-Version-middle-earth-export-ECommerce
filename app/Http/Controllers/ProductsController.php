@@ -54,7 +54,7 @@ class ProductsController extends Controller
     {
         // Determine if the item has been put on the shelf, and throw an exception if it is not on the shelf.
         if (!$product->on_sale) {
-            throw new \Exception('Product is not on sale yet');
+            throw new InvalidRequestException('Sorry, product is not on sale yet');
         }
 
         return view('products.show', ['product' => $product]);
