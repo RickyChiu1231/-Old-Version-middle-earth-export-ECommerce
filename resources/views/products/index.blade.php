@@ -34,9 +34,11 @@
         <div class="col-3 product-item">
           <div class="product-content">
             <div class="top">
-              <div class="img"><a href="{{ route('products.show', ['product' => $product->id]) }}">
-                  <img src="{{ $product->image_url }}" alt=""></a>
-            </div>
+              <div class="img">
+                <a href="{{ route('products.show', ['product' => $product->id]) }}">
+                  <img src="{{ $product->image_url }}" alt="">
+                </a>
+              </div>
               <div class="price"><b>$</b>{{ $product->price }}</div>
               <div class="title">
                 <a href="{{ route('products.show', ['product' => $product->id]) }}">{{ $product->title }}</a>
