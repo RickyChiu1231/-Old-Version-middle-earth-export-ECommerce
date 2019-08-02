@@ -12,9 +12,9 @@ class Product extends Model
                     'rating', 'sold_count', 'review_count', 'price'
     ];
     protected $casts = [
-        'on_sale' => 'boolean', // on_sale 是一个布尔类型的字段
+        'on_sale' => 'boolean', // on_sale is a boolean
     ];
-    // 与商品SKU关联
+    // link with product sku
     public function skus()
     {
         return $this->hasMany(ProductSku::class);
