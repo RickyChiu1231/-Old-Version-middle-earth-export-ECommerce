@@ -9,6 +9,7 @@ use App\Models\UserAddress;
 use App\Models\Order;
 use Carbon\Carbon;
 use App\Jobs\CloseOrder;
+use Illuminate\Http\Request;
 
 class OrdersController extends Controller
 {
@@ -68,5 +69,17 @@ class OrdersController extends Controller
         $this->dispatch(new CloseOrder($order, config('app.order_ttl')));
 
         return $order;
+    }
+
+    public function index(Request $request)
+    {
+        $orders = Order::query()
+
+            ->with(['items.product', 'items.productSku'])
+            ->where('user_id', $request->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate();
+
+        return view('orders.index', ['orders' => $orders]);
     }
 }
