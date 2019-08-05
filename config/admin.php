@@ -34,7 +34,7 @@ return [
     | '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo-mini' => '<b>MES</b>',
+    'logo-mini' => '<b>MEES</b>',
 
     /*
     |--------------------------------------------------------------------------
@@ -85,7 +85,7 @@ return [
     | Html title for all pages.
     |
     */
-    'title' => 'Middle-Earth Shop Back=end management system',
+    'title' => 'Middle-Earth Shop Management System',
 
     /*
     |--------------------------------------------------------------------------
@@ -151,7 +151,7 @@ return [
     'upload' => [
 
         // Disk in `config/filesystem.php`.
-        'disk' => 'public',
+        'disk' => 'admin',
 
         // Image and file upload path under the disk above.
         'directory' => [
