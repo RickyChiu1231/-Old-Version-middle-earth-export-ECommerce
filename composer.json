@@ -13,7 +13,8 @@
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
-        "predis/predis": "^1.1"
+        "predis/predis": "^1.1",
+        "yansongda/pay": "^2.8"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",
