@@ -62,13 +62,13 @@ class Order extends Model
     protected static function boot()
     {
         parent::boot();
-        // 监听模型创建事件，在写入数据库之前触发
+        // Listen for model creation events, triggered before writing to the database
         static::creating(function ($model) {
-            // 如果模型的 no 字段为空
+            // If the model's no field is empty
             if (!$model->no) {
-                // 调用 findAvailableNo 生成订单流水号
+                // Call findAvailableNo to generate the order serial number
                 $model->no = static::findAvailableNo();
-                // 如果生成失败，则终止创建订单
+                // If the build fails, the creation of the order is terminated.
                 if (!$model->no) {
                     return false;
                 }
@@ -88,12 +88,12 @@ class Order extends Model
 
     public static function findAvailableNo()
     {
-        // 订单流水号前缀
+        // Order serial number prefix
         $prefix = date('YmdHis');
         for ($i = 0; $i < 10; $i++) {
-            // 随机生成 6 位的数字
+            // Randomly generate 6 digits
             $no = $prefix.str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            // 判断是否已经存在
+            // Determine if it already exists
             if (!static::query()->where('no', $no)->exists()) {
                 return $no;
             }
