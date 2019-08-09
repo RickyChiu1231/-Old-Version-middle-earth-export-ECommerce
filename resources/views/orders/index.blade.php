@@ -61,7 +61,17 @@
                           or the order will be cancel by the system
                         @endif
                       </td>
-                      <td rowspan="{{ count($order->items) }}" class="text-center"><a class="btn btn-primary btn-sm" href="{{ route('orders.show', ['order' => $order->id]) }}">Order Detail</a></td>
+                      <td rowspan="{{ count($order->items) }}" class="text-center"><a class="btn btn-primary btn-sm" href="{{ route('orders.show', ['order' => $order->id]) }}">Order Detail</a>
+
+                        <!-- Entrance of review -->
+                        @if($order->paid_at)
+                        <a class="btn btn-success btn-sm" href="{{ route('orders.review.show', ['order' => $order->id]) }}">
+                        {{ $order->reviewed ? 'See Review' : 'Write Review' }}
+                        </a>
+                         @endif
+                        <!-- end -->
+
+                      </td>
                     @endif
                   </tr>
                 @endforeach

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\OrderItem;
 
 class ProductsController extends Controller
 {
@@ -53,18 +54,30 @@ class ProductsController extends Controller
     public function show(Product $product, Request $request)
     {
         if (!$product->on_sale) {
-            throw new InvalidRequestException('商品未上架');
+            throw new InvalidRequestException('Product no on sale');
         }
 
         $favored = false;
-        // 用户未登录时返回的是 null，已登录时返回的是对应的用户对象
+        // The user returns null when not logged in, and the corresponding user object is returned when logged in.
         if($user = $request->user()) {
-            // 从当前用户已收藏的商品中搜索 id 为当前商品 id 的商品
-            // boolval() 函数用于把值转为布尔值
+            // Search for items with the current product id from the items that the user has already bookmarked
+            // The boolval() function is used to convert a value to a boolean
             $favored = boolval($user->favoriteProducts()->find($product->id));
         }
 
-        return view('products.show', ['product' => $product, 'favored' => $favored]);
+        $reviews = OrderItem::query()
+            ->with(['order.user', 'productSku']) // Preload association
+            ->where('product_id', $product->id)
+            ->whereNotNull('reviewed_at') // Filter out the evaluated
+            ->orderBy('reviewed_at', 'desc') // Reversed by evaluation time
+            ->limit(10) // get 10 of them
+            ->get();
+
+        return view('products.show', [
+            'product' => $product,
+            'favored' => $favored,
+            'reviews' => $reviews
+        ]);
     }
 
 

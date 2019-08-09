@@ -36,7 +36,7 @@ class PaymentController extends Controller
             return view('pages.error', ['msg' => 'data incorrect']);
         }
 
-        return view('pages.success', ['msg' => 'Successful payment']);
+        return view('pages.success', ['msg' => 'Payment Successful']);
     }
 
     // Server callback

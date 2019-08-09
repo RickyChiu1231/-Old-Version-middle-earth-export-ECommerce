@@ -18,7 +18,7 @@ class AppServiceProvider extends ServiceProvider
         // Inject a singleton object named alipay into the service container
         $this->app->singleton('alipay', function () {
             $config = config('pay.alipay');
-            $config['notify_url'] = 'http://requestbin.net/r/1hu1ub31';
+            $config['notify_url'] = 'http://requestbin.net/r/195t89k1';
             $config['return_url'] = route('payment.alipay.return');
             // Determine whether the current project operating environment is an online environment
             if (app()->environment() !== 'production') {
