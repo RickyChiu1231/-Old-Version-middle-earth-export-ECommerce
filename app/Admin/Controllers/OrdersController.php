@@ -12,6 +12,7 @@ use Encore\Admin\Show;
 use Illuminate\Http\Request;
 use App\Exceptions\InvalidRequestException;
 
+
 class OrdersController extends Controller
 {
     use HasResourceActions;
@@ -200,4 +201,6 @@ class OrdersController extends Controller
         // return to previous page
         return redirect()->back();
     }
+
+
 }
