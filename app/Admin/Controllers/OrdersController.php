@@ -211,28 +211,30 @@ class OrdersController extends Controller
         if ($order->refund_status !== Order::REFUND_STATUS_APPLIED) {
             throw new InvalidRequestException('Order status is incorrect');
         }
-
+        // Agree to refund or not
         if ($request->input('agree')) {
-            // The logic to agree to the refund is left blank first.
-            // todo
+            // Empty rejection of refund
+            $extra = $order->extra ?: [];
+            unset($extra['refund_disagree_reason']);
+            $order->update([
+                'extra' => $extra,
+            ]);
+            // Call the refund logic
+            $this->_refundOrder($order);
         } else {
             // Place the reason for rejecting the refund in the extra field of the order
             $extra = $order->extra ?: [];
-            unset($extra['refund_disagree_reason']);
-
-
+            $extra['refund_disagree_reason'] = $request->input('reason');
             // Change the refund status of the order to a non-refundable
             $order->update([
+                'refund_status' => Order::REFUND_STATUS_PENDING,
                 'extra'         => $extra,
             ]);
-            // Calling refund logic
-            $this->_refundOrder($order);
-        } else {
-
         }
-
         return $order;
     }
+
+
 
     protected function _refundOrder(Order $order)
     {
