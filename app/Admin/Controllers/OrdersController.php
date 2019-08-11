@@ -12,6 +12,7 @@ use Encore\Admin\Show;
 use Illuminate\Http\Request;
 use App\Exceptions\InvalidRequestException;
 use App\Http\Requests\Admin\HandleRefundRequest;
+use App\Exceptions\InternalException;
 
 
 class OrdersController extends Controller
@@ -208,7 +209,7 @@ class OrdersController extends Controller
     {
         // Determine if the order status is correct
         if ($order->refund_status !== Order::REFUND_STATUS_APPLIED) {
-            throw new InvalidRequestException('订单状态不正确');
+            throw new InvalidRequestException('Order status is incorrect');
         }
 
         if ($request->input('agree')) {
@@ -217,15 +218,62 @@ class OrdersController extends Controller
         } else {
             // Place the reason for rejecting the refund in the extra field of the order
             $extra = $order->extra ?: [];
-            $extra['refund_disagree_reason'] = $request->input('reason');
+            unset($extra['refund_disagree_reason']);
+
+
             // Change the refund status of the order to a non-refundable
             $order->update([
-                'refund_status' => Order::REFUND_STATUS_PENDING,
                 'extra'         => $extra,
             ]);
+            // Calling refund logic
+            $this->_refundOrder($order);
+        } else {
+
         }
 
         return $order;
+    }
+
+    protected function _refundOrder(Order $order)
+    {
+        // Determine the payment method of the order
+        switch ($order->payment_method) {
+            case 'wechat':
+                // For wechat
+                // todo
+                break;
+            case 'alipay':
+                // Generate a refund order number using the method we just wrote
+                $refundNo = Order::getAvailableRefundNo();
+                // The method of invoking the Alipay payment instance
+                $ret = app('alipay')->refund([
+                    'out_trade_no' => $order->no, // Previous order serial number
+                    'refund_amount' => $order->total_amount,
+                    'out_request_no' => $refundNo, // Refund order number
+                ]);
+                // According to Alipay's documentation, if there is a sub_code field in the return value, the refund fails.
+                if ($ret->sub_code) {
+                    // Save the refund failed save to the extra field
+                    $extra = $order->extra;
+                    $extra['refund_failed_code'] = $ret->sub_code;
+                    // Mark the refund status of the order as a refund failure
+                    $order->update([
+                        'refund_no' => $refundNo,
+                        'refund_status' => Order::REFUND_STATUS_FAILED,
+                        'extra' => $extra,
+                    ]);
+                } else {
+                    // Mark the refund status of the order as a refund and save the refund order number
+                    $order->update([
+                        'refund_no' => $refundNo,
+                        'refund_status' => Order::REFUND_STATUS_SUCCESS,
+                    ]);
+                }
+                break;
+            default:
+                throw new InternalException('Unknown order payment method：'.$order->payment_method);
+                break;
+        }
     }
 
 
