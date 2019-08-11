@@ -11,6 +11,7 @@ use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Http\Request;
 use App\Exceptions\InvalidRequestException;
+use App\Http\Requests\Admin\HandleRefundRequest;
 
 
 class OrdersController extends Controller
@@ -200,6 +201,31 @@ class OrdersController extends Controller
 
         // return to previous page
         return redirect()->back();
+    }
+
+
+    public function handleRefund(Order $order, HandleRefundRequest $request)
+    {
+        // Determine if the order status is correct
+        if ($order->refund_status !== Order::REFUND_STATUS_APPLIED) {
+            throw new InvalidRequestException('订单状态不正确');
+        }
+
+        if ($request->input('agree')) {
+            // The logic to agree to the refund is left blank first.
+            // todo
+        } else {
+            // Place the reason for rejecting the refund in the extra field of the order
+            $extra = $order->extra ?: [];
+            $extra['refund_disagree_reason'] = $request->input('reason');
+            // Change the refund status of the order to a non-refundable
+            $order->update([
+                'refund_status' => Order::REFUND_STATUS_PENDING,
+                'extra'         => $extra,
+            ]);
+        }
+
+        return $order;
     }
 
 

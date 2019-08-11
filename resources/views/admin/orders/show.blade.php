@@ -86,7 +86,68 @@
         <td>{{ $order->ship_data['express_no'] }}</td>
       </tr>
       @endif
+
+      @if($order->refund_status !== \App\Models\Order::REFUND_STATUS_PENDING)
+  <tr>
+    <td>Refund Status：</td>
+    <td colspan="2">{{ \App\Models\Order::$refundStatusMap[$order->refund_status] }}，Reason：{{ $order->extra['refund_reason'] }}</td>
+    <td>
+      <!-- Show processing button if the order refund status is already applied -->
+      @if($order->refund_status === \App\Models\Order::REFUND_STATUS_APPLIED)
+      <button class="btn btn-sm btn-success" id="btn-refund-agree">Agree</button>
+      <button class="btn btn-sm btn-danger" id="btn-refund-disagree">Disagree</button>
+      @endif
+    </td>
+  </tr>
+  @endif
       </tbody>
     </table>
   </div>
 </div>
+
+<script>
+$(document).ready(function() {
+  // 不同意 按钮的点击事件
+  $('#btn-refund-disagree').click(function() {
+    // Laravel-Admin 使用的 SweetAlert 版本与我们在前台使用的版本不一样，因此参数也不太一样
+    swal({
+      title: 'Enter the reason for rejecting the refund',
+      input: 'text',
+      showCancelButton: true,
+      confirmButtonText: "Confirm",
+      cancelButtonText: "cancel",
+      showLoaderOnConfirm: true,
+      preConfirm: function(inputValue) {
+        if (!inputValue) {
+          swal('Rejecting Reason cannot be null', '', 'error')
+          return false;
+        }
+        // Laravel-Admin does not have axios, requesting using jQuery's ajax method
+        return $.ajax({
+          url: '{{ route('admin.orders.handle_refund', [$order->id]) }}',
+          type: 'POST',
+          data: JSON.stringify({   // Turn the request into a JSON string
+            agree: false,  // Refuse applicaton
+            reason: inputValue,
+            _token: LA.token,
+          }),
+          contentType: 'application/json',
+        });
+      },
+      allowOutsideClick: false
+    }).then(function (ret) {
+      // If the user clicks the "Cancel" button, no action is taken.
+      if (ret.dismiss === 'cancel') {
+        return;
+      }
+      swal({
+        title: 'Rejecting successful',
+        type: 'success'
+      }).then(function() {
+        // Refresh the page when the user clicks the button on swal
+        location.reload();
+      });
+    });
+  });
+});
+</script>
