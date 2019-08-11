@@ -10,6 +10,7 @@ use App\Services\OrderService;
 use Carbon\Carbon;
 use App\Http\Requests\SendReviewRequest;
 use App\Events\OrderReviewed;
+use App\Http\Requests\ApplyRefundRequest;
 
 class OrdersController extends Controller
 {
@@ -101,6 +102,30 @@ class OrdersController extends Controller
         });
 
         return redirect()->back();
+    }
+
+    public function applyRefund(Order $order, ApplyRefundRequest $request)
+    {
+        // Verify if order belongs to the current user
+        $this->authorize('own', $order);
+        // Determine if the order has been paid
+        if (!$order->paid_at) {
+            throw new InvalidRequestException('This order is unable to apply for a refund unless is paid');
+        }
+        // Determine if the order refund status is correct
+        if ($order->refund_status !== Order::REFUND_STATUS_PENDING) {
+            throw new InvalidRequestException('The order has been applied for a refund. Please do not repeat the application.');
+        }
+        // Put the reason for the refund entered by the user into the extra field of the order
+        $extra                  = $order->extra ?: [];
+        $extra['refund_reason'] = $request->input('reason');
+        // Change order refund status to requested refund
+        $order->update([
+            'refund_status' => Order::REFUND_STATUS_APPLIED,
+            'extra'         => $extra,
+        ]);
+
+        return $order;
     }
 
 }

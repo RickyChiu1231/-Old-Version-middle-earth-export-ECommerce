@@ -57,6 +57,20 @@
           <div class="line-value">{{ $order->ship_data['express_company'] }} {{ $order->ship_data['express_no'] }}</div>
         </div>
         @endif
+
+        <!-- 订单已支付，且退款状态不是未退款时展示退款信息 -->
+        @if($order->paid_at && $order->refund_status !== \App\Models\Order::REFUND_STATUS_PENDING)
+        <div class="line">
+          <div class="line-label">Refund status：</div>
+          <div class="line-value">{{ \App\Models\Order::$refundStatusMap[$order->refund_status] }}</div>
+        </div>
+        <div class="line">
+          <div class="line-label">Refund Reason：</div>
+          <div class="line-value">{{ $order->extra['refund_reason'] }}</div>
+        </div>
+        @endif
+
+
       </div>
       <div class="order-summary text-right">
         <div class="total-amount">
@@ -93,31 +107,63 @@
           <button type="button" id="btn-receive" class="btn btn-sm btn-success">Confirm Receipt</button>
         </div>
         @endif
+
+        <!-- The order has been paid, and the refund status is refunded when the Show Requisition button is paid, and the refund status is non-refundable. -->
+        @if($order->paid_at && $order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
+        <div class="refund-button">
+          <button class="btn btn-sm btn-danger" id="btn-apply-refund">Apply for Refund</button>
+        </div>
+        @endif
+
+
 @section('scriptsAfterJs')
 <script>
   $(document).ready(function() {
-    // 确认收货按钮点击事件
+    // Confirm receipt button click event
     $('#btn-receive').click(function() {
-      // 弹出确认框
+      // Popup confirmation box
       swal({
-        title: "确认已经收到商品？",
+        title: "Confirm that the item has been received？",
         icon: "warning",
         dangerMode: true,
-        buttons: ['取消', '确认收到'],
+        buttons: ['Cancel', 'Confirm'],
       })
       .then(function(ret) {
-        // 如果点击取消按钮则不做任何操作
+
         if (!ret) {
           return;
         }
-        // ajax 提交确认操作
+        // Ajax submit confirmation operation
         axios.post('{{ route('orders.received', [$order->id]) }}')
           .then(function () {
-            // 刷新页面
+            // reload page
             location.reload();
           })
       });
     });
+
+    // Refund button click event
+    $('#btn-apply-refund').click(function () {
+      swal({
+        text: 'Please enter the reason for the refund',
+        content: "input",
+      }).then(function (input) {
+        // This function is triggered when the user clicks the button on the swal popup
+        if(!input) {
+          swal('The reason for the refund cannot be null', '', 'error');
+          return;
+        }
+        // Request refund api
+        axios.post('{{ route('orders.apply_refund', [$order->id]) }}', {reason: input})
+          .then(function () {
+            swal('Successfully requested a refund', '', 'success').then(function () {
+              // Reload the page when the user clicks the button on the bullet
+              location.reload();
+            });
+          });
+      });
+    });
+
 
   });
 </script>
