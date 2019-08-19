@@ -52,8 +52,7 @@ class ProductsController extends Controller
     public function edit($id, Content $content)
     {
         return $content
-            ->header('Edit')
-            ->description('description')
+            ->header('Edit product')
             ->body($this->form()->edit($id));
     }
 
@@ -66,8 +65,7 @@ class ProductsController extends Controller
     public function create(Content $content)
     {
         return $content
-            ->header('Create')
-            ->description('description')
+            ->header('Create product')
             ->body($this->form());
     }
 
@@ -138,14 +136,30 @@ class ProductsController extends Controller
     {
         $form = new Form(new Product);
 
-        $form->text('title', 'Title');
-        $form->textarea('description', 'Description');
-        $form->image('image', 'Image');
-        $form->switch('on_sale', 'On sale')->default(1);
-        $form->decimal('rating', 'Rating')->default(5.00);
-        $form->number('sold_count', 'Sold count');
-        $form->number('review_count', 'Review count');
-        $form->decimal('price', 'Price');
+        // Create an input box, the first parameter title is the field name of the model, and the second parameter is the field description
+        $form->text('title', 'Product Name')->rules('required');
+
+        // Create a box to select a picture
+        $form->image('image', 'Product Image')->rules('required|image');
+
+        // Create a text editor
+        $form->editor('description', 'Product Description')->rules('required');
+
+        // Create a set of radio buttons
+        $form->radio('on_sale', 'On Sale')->options(['1' => 'Yes', '0'=> 'No'])->default('0');
+
+        // Add one-to-many association models directly
+        $form->hasMany('skus', 'SKU List', function (Form\NestedForm $form) {
+            $form->text('title', 'SKU Name')->rules('required');
+            $form->text('description', 'SKU description')->rules('required');
+            $form->text('price', 'price')->rules('required|numeric|min:0.01');
+            $form->text('stock', 'InStock')->rules('required|integer|min:0');
+        });
+
+        // Define an event callback that will be triggered when the model is about to be saved
+        $form->saving(function (Form $form) {
+            $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
+        });
 
         return $form;
     }
