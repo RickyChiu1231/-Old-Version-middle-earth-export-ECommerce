@@ -29,8 +29,10 @@
       </div>
     </form>
     <!-- Filter tools end -->
+
     <div class="row products-list">
-      @foreach($products as $product)
+        <h2 class="mb-4 text-center">奶粉</h2>
+      @foreach($category1->products as $product)
         <div class="col-3 product-item">
           <div class="product-content">
             <div class="top">
@@ -52,6 +54,62 @@
         </div>
       @endforeach
     </div>
+
+
+
+    <div class="row products-list">
+        <h2 class="mb-4 text-center">化妆品</h2>
+      @foreach($category2->products as $product)
+        <div class="col-3 product-item">
+          <div class="product-content">
+            <div class="top">
+              <div class="img">
+                <a href="{{ route('products.show', ['product' => $product->id]) }}">
+                  <img src="{{ $product->image_url }}" alt="">
+                </a>
+              </div>
+              <div class="price"><b>$</b>{{ $product->price }}</div>
+              <div class="title">
+                <a href="{{ route('products.show', ['product' => $product->id]) }}">{{ $product->title }}</a>
+              </div>
+            </div>
+            <div class="bottom">
+              <div class="sold_count">Quantity of sale <span>{{ $product->sold_count }}</span></div>
+              <div class="review_count">Review <span>{{ $product->review_count }}</span></div>
+            </div>
+          </div>
+        </div>
+      @endforeach
+    </div>
+
+    <div class="row products-list">
+        <h2 class="mb-4 text-center">保健品</h2>
+      @foreach($category3->products as $product)
+        <div class="col-3 product-item">
+          <div class="product-content">
+            <div class="top">
+              <div class="img">
+                <a href="{{ route('products.show', ['product' => $product->id]) }}">
+                  <img src="{{ $product->image_url }}" alt="">
+                </a>
+              </div>
+              <div class="price"><b>$</b>{{ $product->price }}</div>
+              <div class="title">
+                <a href="{{ route('products.show', ['product' => $product->id]) }}">{{ $product->title }}</a>
+              </div>
+            </div>
+            <div class="bottom">
+              <div class="sold_count">Quantity of sale <span>{{ $product->sold_count }}</span></div>
+              <div class="review_count">Review <span>{{ $product->review_count }}</span></div>
+            </div>
+          </div>
+        </div>
+      @endforeach
+    </div>
+
+
+
+
     <div class="float-right">{{ $products->appends($filters)->render() }}</div>
   </div>
 </div>

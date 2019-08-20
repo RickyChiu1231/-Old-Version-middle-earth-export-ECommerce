@@ -7,6 +7,9 @@ use Illuminate\Support\Str;
 
 class Product extends Model
 {
+
+    protected $table = 'products';
+
     protected $fillable = [
                     'title', 'description', 'image', 'on_sale',
                     'rating', 'sold_count', 'review_count', 'price'
@@ -26,5 +29,10 @@ class Product extends Model
             return $this->attributes['image'];
         }
         return \Storage::disk('public')->url($this->attributes['image']);
+    }
+
+        public function categories()
+    {
+        return $this->belongsToMany(Category::class);
     }
 }

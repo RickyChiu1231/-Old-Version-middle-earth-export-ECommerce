@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\OrderItem;
+use App\Models\Category;
 
 class ProductsController extends Controller
 {
@@ -41,9 +42,16 @@ class ProductsController extends Controller
         }
 
         $products = $builder->paginate(16);
+        $category1 = Category::find(1);
+        $category2 = Category::find(2);
+        $category3 = Category::find(3);
+
 
         return view('products.index', [
             'products' => $products,
+            'category1' => $category1,
+            'category2' => $category2,
+            'category3' => $category3,
             'filters'  => [
                 'search' => $search,
                 'order'  => $order,
