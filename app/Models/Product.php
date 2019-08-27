@@ -7,32 +7,30 @@ use Illuminate\Support\Str;
 
 class Product extends Model
 {
-
-    protected $table = 'products';
-
     protected $fillable = [
-                    'title', 'description', 'image', 'on_sale',
+                    'title', 'description', 'image', 'categoryid', 'on_sale',
                     'rating', 'sold_count', 'review_count', 'price'
     ];
     protected $casts = [
-        'on_sale' => 'boolean', // on_sale is a boolean
+        'on_sale' => 'boolean', // on_sale 是一个布尔类型的字段
     ];
-    // link with product sku
+    // 与商品SKU关联
     public function skus()
     {
         return $this->hasMany(ProductSku::class);
     }
 
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
     public function getImageUrlAttribute()
     {
+
         if (Str::startsWith($this->attributes['image'], ['http://', 'https://'])) {
             return $this->attributes['image'];
         }
         return \Storage::disk('public')->url($this->attributes['image']);
-    }
-
-        public function categories()
-    {
-        return $this->belongsToMany(Category::class);
     }
 }

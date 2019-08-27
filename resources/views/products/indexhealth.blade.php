@@ -7,7 +7,7 @@
 <div class="card">
   <div class="card-body">
     <!-- Filter tools start -->
-    <form action="{{ route('products.index') }}" class="search-form">
+    <form action="{{ route('products.indexhealth') }}" class="search-form">
       <div class="form-row">
         <div class="col-md-9">
           <div class="form-row">
@@ -15,8 +15,7 @@
             <div class="col-auto"><button class="btn btn-primary btn-sm">Search</button></div>
           </div>
         </div>
-
-     <!--   <div class="col-md-3">
+        <div class="col-md-3">
           <select name="order" class="form-control form-control-sm float-right">
             <option value="">Sort by</option>
             <option value="price_asc">Price: Low -> High</option>
@@ -26,72 +25,16 @@
             <option value="rating_desc">Review: High -> Low</option>
             <option value="rating_asc">Review: Low -> High</option>
           </select>
-        </div>    -->
-
+        </div>
       </div>
     </form>
     <!-- Filter tools end -->
 
 
 
-<h2><a href="{{ route('products.indexmilk') }}">Milk</a></h2>
+
     <div class="row products-list">
-      @foreach($category1->products as $product)
-        <div class="col-3 product-item">
-          <div class="product-content">
-            <div class="top">
-              <div class="img">
-                <a href="{{ route('products.show', ['product' => $product->id]) }}">
-                  <img src="{{ $product->image_url }}" alt="">
-                </a>
-              </div>
-              <div class="price"><b>$</b>{{ $product->price }}</div>
-              <div class="title">
-                <a href="{{ route('products.show', ['product' => $product->id]) }}">{{ $product->title }}</a>
-              </div>
-            </div>
-            <div class="bottom">
-              <div class="sold_count">Quantity of sale <span>{{ $product->sold_count }}</span></div>
-              <div class="review_count">Review <span>{{ $product->review_count }}</span></div>
-            </div>
-          </div>
-        </div>
-      @endforeach
-    </div>
-
-
-
-<h2><a href="{{ route('products.indexhealth') }}">Health</a></h2>
-    <div class="row products-list">
-      @foreach($category2->products as $product)
-        <div class="col-3 product-item">
-          <div class="product-content">
-            <div class="top">
-              <div class="img">
-                <a href="{{ route('products.show', ['product' => $product->id]) }}">
-                  <img src="{{ $product->image_url }}" alt="">
-                </a>
-              </div>
-              <div class="price"><b>$</b>{{ $product->price }}</div>
-              <div class="title">
-                <a href="{{ route('products.show', ['product' => $product->id]) }}">{{ $product->title }}</a>
-              </div>
-            </div>
-            <div class="bottom">
-              <div class="sold_count">Quantity of sale <span>{{ $product->sold_count }}</span></div>
-              <div class="review_count">Review <span>{{ $product->review_count }}</span></div>
-            </div>
-          </div>
-        </div>
-      @endforeach
-    </div>
-
-
-
-
-<h2><a href="{{ route('products.indexothers') }}">Others</a></h2>
-    <div class="row products-list">
-      @foreach($category3->products as $product)
+      @foreach($products as $product)
         <div class="col-3 product-item">
           <div class="product-content">
             <div class="top">

@@ -23,7 +23,7 @@ class ProductsController extends Controller
     public function index(Content $content)
     {
         return $content
-            ->header('product list')
+            ->header('Product List')
             ->body($this->grid());
     }
 
@@ -52,7 +52,7 @@ class ProductsController extends Controller
     public function edit($id, Content $content)
     {
         return $content
-            ->header('Edit product')
+            ->header('Edit product info')
             ->body($this->form()->edit($id));
     }
 
@@ -65,7 +65,7 @@ class ProductsController extends Controller
     public function create(Content $content)
     {
         return $content
-            ->header('Create product')
+            ->header('Create Product')
             ->body($this->form());
     }
 
@@ -80,20 +80,21 @@ class ProductsController extends Controller
 
         $grid->id('ID')->sortable();
         $grid->title('Product Name');
-        $grid->on_sale('On Sale')->display(function ($value) {
+        $grid->on_sale('on_sale')->display(function ($value) {
             return $value ? 'Yes' : 'No';
         });
+        $grid->categoryid('categoryid');
         $grid->price('Price');
         $grid->rating('Rating');
         $grid->sold_count('Sales');
-        $grid->review_count('Number of Review');
+        $grid->review_count('Review');
 
         $grid->actions(function ($actions) {
             $actions->disableView();
             $actions->disableDelete();
         });
         $grid->tools(function ($tools) {
-
+            // ban delete button
             $tools->batch(function ($batch) {
                 $batch->disableDelete();
             });
@@ -116,6 +117,7 @@ class ProductsController extends Controller
         $show->title('Title');
         $show->description('Description');
         $show->image('Image');
+        $show->categoryid('Categoryid');
         $show->on_sale('On sale');
         $show->rating('Rating');
         $show->sold_count('Sold count');
@@ -136,27 +138,26 @@ class ProductsController extends Controller
     {
         $form = new Form(new Product);
 
-        // Create an input box, the first parameter title is the field name of the model, and the second parameter is the field description
         $form->text('title', 'Product Name')->rules('required');
 
-        // Create a box to select a picture
+        // Create picture selector
         $form->image('image', 'Product Image')->rules('required|image');
 
-        // Create a text editor
-        $form->editor('description', 'Product Description')->rules('required');
+        $form->editor('description', 'Product description')->rules('required');
 
-        // Create a set of radio buttons
-        $form->radio('on_sale', 'On Sale')->options(['1' => 'Yes', '0'=> 'No'])->default('0');
+        $form->number('categoryid', 'Categoryid');
 
-        // Add one-to-many association models directly
-        $form->hasMany('skus', 'SKU List', function (Form\NestedForm $form) {
-            $form->text('title', 'SKU Name')->rules('required');
+
+        $form->radio('on_sale', 'on_sale')->options(['1' => 'Yes', '0'=> 'No'])->default('0');
+
+
+        $form->hasMany('skus', 'SKU list', function (Form\NestedForm $form) {
+            $form->text('title', 'SKU name')->rules('required');
             $form->text('description', 'SKU description')->rules('required');
             $form->text('price', 'price')->rules('required|numeric|min:0.01');
-            $form->text('stock', 'InStock')->rules('required|integer|min:0');
+            $form->text('stock', 'In Stock')->rules('required|integer|min:0');
         });
 
-        // Define an event callback that will be triggered when the model is about to be saved
         $form->saving(function (Form $form) {
             $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
         });

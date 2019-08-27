@@ -12,7 +12,7 @@ class ProductsSeeder extends Seeder
     public function run()
     {
         // Create 30 product
-        $products = factory(\App\Models\Product::class, 30)->create();
+        $products = factory(\App\Models\Product::class, 40)->create();
         foreach ($products as $product) {
             // Create 3 SKU
             $skus = factory(\App\Models\ProductSku::class, 3)->create(['product_id' => $product->id]);
