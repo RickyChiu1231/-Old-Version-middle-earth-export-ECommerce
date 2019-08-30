@@ -32,7 +32,7 @@
 
 
 
-
+<h2 align="center">Other product</h2>   </br>
     <div class="row products-list">
       @foreach($products as $product)
         <div class="col-3 product-item">

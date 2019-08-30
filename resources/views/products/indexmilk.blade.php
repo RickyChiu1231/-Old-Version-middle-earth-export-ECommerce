@@ -31,8 +31,7 @@
     <!-- Filter tools end -->
 
 
-
-
+<h2 align="center">Milk product</h2>  </br>
     <div class="row products-list">
       @foreach($products as $product)
         <div class="col-3 product-item">
