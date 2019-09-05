@@ -40,7 +40,6 @@ class CouponCodesController extends Controller
     {
         return $content
             ->header('Edit')
-            ->description('description')
             ->body($this->form()->edit($id));
     }
 
@@ -53,8 +52,7 @@ class CouponCodesController extends Controller
     public function create(Content $content)
     {
         return $content
-            ->header('Create')
-            ->description('description')
+            ->header('Create New Coupon')
             ->body($this->form());
     }
 
@@ -97,16 +95,37 @@ class CouponCodesController extends Controller
     {
         $form = new Form(new CouponCode);
 
-        $form->text('name', 'Name');
-        $form->text('code', 'Code');
-        $form->text('type', 'Type');
-        $form->decimal('value', 'Value');
-        $form->number('total', 'Total');
-        $form->number('used', 'Used');
-        $form->decimal('min_amount', 'Min amount');
-        $form->datetime('not_before', 'Not before')->default(date('Y-m-d H:i:s'));
-        $form->datetime('not_after', 'Not after')->default(date('Y-m-d H:i:s'));
-        $form->switch('enabled', 'Enabled');
+        $form->display('id', 'ID');
+        $form->text('name', 'Name')->rules('required');
+        $form->text('code', 'CouponCode')->rules(function($form) {
+            // If $form->model()->id is not empty, it means an edit operation
+            if ($id = $form->model()->id) {
+                return 'nullable|unique:coupon_codes,code,'.$id.',id';
+            } else {
+                return 'nullable|unique:coupon_codes';
+            }
+        });
+        $form->radio('type', 'Type')->options(CouponCode::$typeMap)->rules('required')->default(CouponCode::TYPE_FIXED);
+        $form->text('value', 'Discount Value')->rules(function ($form) {
+            if (request()->input('type') === CouponCode::TYPE_PERCENT) {
+                // If the percentage discount type is selected, the discount range can only be 1 ~ 99
+                return 'required|numeric|between:1,99';
+            } else {
+
+                return 'required|numeric|min:0.01';
+            }
+        });
+        $form->text('total', 'total')->rules('required|numeric|min:0');
+        $form->text('min_amount', 'Minimun Amount')->rules('required|numeric|min:0');
+        $form->datetime('not_before', 'Start Time');
+        $form->datetime('not_after', 'End Time');
+        $form->radio('enabled', 'Enabled')->options(['1' => 'Yes', '0' => 'No']);
+
+        $form->saving(function (Form $form) {
+            if (!$form->code) {
+                $form->code = CouponCode::findAvailableCode();
+            }
+        });
 
         return $form;
     }
